@@ -1008,6 +1008,12 @@ type CodeGenerator(assemblyMainModule: ModuleBuilder, uniqueLambdaTypeName,
                     ilg.Emit(OpCodes.Newobj, TimeSpanConstructor())
                     ilg.Emit(OpCodes.Newobj, DateTimeOffsetConstructor())
                 | null -> ilg.Emit(OpCodes.Ldnull)
+                | t when FSharp.Reflection.FSharpType.IsUnion (v.GetType()) -> 
+                    let case, fields = FSharp.Reflection.FSharpValue.GetUnionFields (v, v.GetType())
+                    let caseC = FSharp.Reflection.FSharpValue.PreComputeUnionConstructorInfo(case)
+                    for field in fields do
+                        emitC field
+                    ilg.EmitCall(OpCodes.Call, caseC, [||])    
                 | _ -> failwithf "unknown constant '%A' in generated method" v
             if isEmpty expectedState then ()
             else emitC obj
