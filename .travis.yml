@@ -2,7 +2,7 @@ language: csharp
 dist: trusty
 
 # keep this in sync with the value in global.json
-dotnet: 2.1.201
+dotnet: 2.1.200
 
 # 3 mono versions: stable-1, stable, weekly
 # 2 build variants: msbuild/dotnet core
