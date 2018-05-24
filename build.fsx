@@ -34,12 +34,6 @@ let release =
 
 let useMsBuildToolchain = environVar "USE_MSBUILD" <> null
 let dotnetSdkVersion = "2.1.201"
-let sdkPath = lazy DotNetCli.InstallDotNetSDK dotnetSdkVersion
-let getSdkPath() = sdkPath.Value
-
-printfn "Desired .NET SDK version = %s" dotnetSdkVersion
-printfn "DotNetCli.isInstalled() = %b" (DotNetCli.isInstalled())
-if DotNetCli.isInstalled() then printfn "DotNetCli.getVersion() = %s" (DotNetCli.getVersion())
 
 let exec p args = 
     printfn "Executing %s %s" p args 
@@ -77,36 +71,36 @@ Target "Clean" (fun _ ->
 
 Target "Build" (fun _ ->
   if useMsBuildToolchain then
-    DotNetCli.Restore  (fun p -> { p with Project = "src/FSharp.TypeProviders.SDK.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Restore  (fun p -> { p with Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj"; ToolPath =  getSdkPath() })
+    DotNetCli.Restore  (fun p -> { p with Project = "src/FSharp.TypeProviders.SDK.fsproj" })
+    DotNetCli.Restore  (fun p -> { p with Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj" })
     MSBuildRelease null "Build" ["src/FSharp.TypeProviders.SDK.fsproj"] |> Log "Build-Output: "
     MSBuildRelease null "Build" ["tests/FSharp.TypeProviders.SDK.Tests.fsproj"] |> Log "Build-Output: "
   else
-    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "src/FSharp.TypeProviders.SDK.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj"; ToolPath =  getSdkPath() })
+    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "src/FSharp.TypeProviders.SDK.fsproj" })
+    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj" })
 )
 
 Target "Examples" (fun _ ->
   if useMsBuildToolchain then
-    DotNetCli.Restore  (fun p -> { p with Project = "examples/BasicProvider.DesignTime/BasicProvider.DesignTime.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Restore  (fun p -> { p with Project = "examples/BasicProvider/BasicProvider.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Restore  (fun p -> { p with Project = "examples/ComboProvider/ComboProvider.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Restore  (fun p -> { p with Project = "examples/BasicProvider.Tests/BasicProvider.Tests.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Restore  (fun p -> { p with Project = "examples/ComboProvider.Tests/ComboProvider.Tests.fsproj"; ToolPath =  getSdkPath() })
+    DotNetCli.Restore  (fun p -> { p with Project = "examples/BasicProvider.DesignTime/BasicProvider.DesignTime.fsproj" })
+    DotNetCli.Restore  (fun p -> { p with Project = "examples/BasicProvider/BasicProvider.fsproj" })
+    DotNetCli.Restore  (fun p -> { p with Project = "examples/ComboProvider/ComboProvider.fsproj" })
+    DotNetCli.Restore  (fun p -> { p with Project = "examples/BasicProvider.Tests/BasicProvider.Tests.fsproj" })
+    DotNetCli.Restore  (fun p -> { p with Project = "examples/ComboProvider.Tests/ComboProvider.Tests.fsproj" })
     MSBuildRelease null "Build" ["examples/BasicProvider.DesignTime/BasicProvider.DesignTime.fsproj"] |> Log "Build-Output: "
     MSBuildRelease null "Build" ["examples/BasicProvider/BasicProvider.fsproj"] |> Log "Build-Output: "
     MSBuildRelease null "Build" ["examples/ComboProvider/ComboProvider.fsproj"] |> Log "Build-Output: "
     MSBuildRelease null "Build" ["examples/BasicProvider.Tests/BasicProvider.Tests.fsproj"] |> Log "Build-Output: "
     MSBuildRelease null "Build" ["examples/ComboProvider.Tests/ComboProvider.Tests.fsproj"] |> Log "Build-Output: "
   else
-    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "examples/BasicProvider.DesignTime/BasicProvider.DesignTime.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "examples/BasicProvider/BasicProvider.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "examples/ComboProvider/ComboProvider.fsproj"; ToolPath =  getSdkPath() })
+    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "examples/BasicProvider.DesignTime/BasicProvider.DesignTime.fsproj" })
+    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "examples/BasicProvider/BasicProvider.fsproj" })
+    DotNetCli.Build  (fun p -> { p with Configuration = config; Project = "examples/ComboProvider/ComboProvider.fsproj" })
 )
 Target "RunTests" (fun _ ->
 #if MONO
   // Run the netcoreapp2.0 tests with "dotnet test"
-    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj"; ToolPath =  getSdkPath(); AdditionalArgs=["-f"; "netcoreapp2.0"] })
+    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj"; AdditionalArgs=["-f"; "netcoreapp2.0"] })
 
   // We don't use "dotnet test" for Mono testing the test runner doesn't know how to run with Mono
   // This is a bit of a hack to find the output test DLL and run xunit using Mono directly
@@ -122,9 +116,9 @@ Target "RunTests" (fun _ ->
     // This can also be used on Mono to give console output:
     // msbuild tests/FSharp.TypeProviders.SDK.Tests.fsproj /p:Configuration=Debug && mono packages/xunit.runner.console/tools/net452/xunit.console.exe tests/bin/Debug/net461/FSharp.TypeProviders.SDK.Tests.dll -parallel none
 #else
-    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "examples/BasicProvider.Tests/BasicProvider.Tests.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "examples/ComboProvider.Tests/ComboProvider.Tests.fsproj"; ToolPath =  getSdkPath() })
+    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "tests/FSharp.TypeProviders.SDK.Tests.fsproj" })
+    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "examples/BasicProvider.Tests/BasicProvider.Tests.fsproj" })
+    DotNetCli.Test  (fun p -> { p with Configuration = config; Project = "examples/ComboProvider.Tests/ComboProvider.Tests.fsproj" })
 
     // This can also be used to give console output:
     // dotnet build tests\FSharp.TypeProviders.SDK.Tests.fsproj -c Debug -f net461 && packages\xunit.runner.console\tools\net452\xunit.console.exe tests\bin\Debug\net461\FSharp.TypeProviders.SDK.Tests.dll -parallel none
@@ -133,9 +127,9 @@ Target "RunTests" (fun _ ->
 )
 
 Target "Pack" (fun _ ->
-    DotNetCli.Pack  (fun p -> { p with Configuration = config; Project = "src/FSharp.TypeProviders.SDK.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Pack   (fun p -> { p with Configuration = config; Project = "examples/BasicProvider/BasicProvider.fsproj"; ToolPath =  getSdkPath() })
-    DotNetCli.Pack   (fun p -> { p with Configuration = config; Project = "examples/ComboProvider/ComboProvider.fsproj"; ToolPath =  getSdkPath() })
+    DotNetCli.Pack  (fun p -> { p with Configuration = config; Project = "src/FSharp.TypeProviders.SDK.fsproj" })
+    DotNetCli.Pack   (fun p -> { p with Configuration = config; Project = "examples/BasicProvider/BasicProvider.fsproj" })
+    DotNetCli.Pack   (fun p -> { p with Configuration = config; Project = "examples/ComboProvider/ComboProvider.fsproj" })
 )
 
 "Clean" ==> "Pack"
