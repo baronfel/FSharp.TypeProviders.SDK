@@ -4,26 +4,49 @@ dist: trusty
 # keep this in sync with the value in global.json
 dotnet: 2.1.201
 
+# 3 mono versions: stable-1, stable, weekly
+# 2 build variants: msbuild/dotnet core
+# 2 os: osx/linux
+# 12 total builds
+
 matrix:
   include:
-    - mono: stable
+    - mono: 5.10
       env: USE_DOTNET_CLI=1
       os: linux
     - mono: latest
       env: USE_DOTNET_CLI=1
-      os: osx
-    - mono: stable
+      os: linux
+    - mono: 5.10
       env: USE_MSBUILD=1
       os: linux
     - mono: latest
       env: USE_MSBUILD=1
+      os: linux
+    - mono: 5.10
+      env: USE_DOTNET_CLI=1
       os: osx
     - mono: latest
+      env: USE_DOTNET_CLI=1
+      os: osx
+    - mono: 5.10
+      env: USE_MSBUILD=1
+      os: osx
+    - mono: latest
+      env: USE_MSBUILD=1
+      os: osx
+    - mono: weekly
+      env: USE_DOTNET_CLI=1
+      os: linux
+    - mono: weekly
+      env: USE_DOTNET_CLI=1
+      os: osx
+    - mono: weekly
       env: USE_MSBUILD=1
       os: linux
     - mono: weekly
       env: USE_MSBUILD=1
-      os: linux
+      os: osx
       
 sudo: true  # use the new container-based Travis infrastructure
 
